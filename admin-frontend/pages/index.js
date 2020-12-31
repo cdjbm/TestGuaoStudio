@@ -11,6 +11,8 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
+import Carousel, { slidesToShowPlugin } from '@brainhubeu/react-carousel';
+import '@brainhubeu/react-carousel/lib/style.css';
 
 import Header from './Header';
 
@@ -65,7 +67,7 @@ const useStyles = makeStyles(theme => ({
     paddingTop: '56.25%', // 16:9
   },
   cardContent: {
-    flexGrow: 1,
+    flexGrow: 2,
   },
   footer: {
     borderTop: `2px solid ${theme.palette.divider}`,
@@ -82,9 +84,8 @@ const useStyles = makeStyles(theme => ({
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-export default function Album() {
+export default function Index() {
   const classes = useStyles();
-
   return (
     <React.Fragment>
       <CssBaseline />
@@ -101,6 +102,7 @@ export default function Album() {
               align="center"
               color="textPrimary"
               gutterBottom
+              href="/"
             >
               GuaoBlogs
             </Typography>
@@ -126,6 +128,47 @@ export default function Album() {
             </div>
           </Container>
         </div>
+        <Carousel
+          plugins={[
+            'centered',
+            'infinite',
+            'arrows',
+            {
+              resolve: slidesToShowPlugin,
+              options: {
+                numberOfSlides: 2,
+              },
+            },
+          ]}
+        >
+          {cards.map(card => (
+            <Card key={card} className={classes.card}>
+              <CardMedia
+                className={classes.cardMedia}
+                image="https://source.unsplash.com/random"
+                title="Image title"
+              />
+              <CardContent className={classes.cardContent}>
+                <Typography gutterBottom variant="h5" component="h2">
+                  Titulo{card}
+                </Typography>
+                <Typography>
+                  Resumen del blog: Lorem ipsum dolor sit amet consectetur
+                  adipisicing elit.
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button size="small" color="primary">
+                  Leer más
+                </Button>
+                <Button size="small" color="primary">
+                  Ver mas tarde
+                </Button>
+              </CardActions>
+            </Card>
+          ))}
+        </Carousel>
+
         <Container className={classes.cardGrid} maxWidth="lg">
           {/* End hero unit */}
           <Grid container spacing={4}>

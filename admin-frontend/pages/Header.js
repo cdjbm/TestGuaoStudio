@@ -4,7 +4,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
+import { default as LinkM } from '@material-ui/core/Link';
+import Link from 'next/link';
 import { spacing } from '@material-ui/system';
 import { Box } from '@material-ui/core';
 
@@ -43,14 +44,18 @@ export default function Header(props) {
           {title}
         </Typography>
         <Box mx={1}>
-          <Button variant="outlined" color="inherit">
-            Registrarse
-          </Button>
+          <Link color="inherit" noWrap href="/signup">
+            <Button variant="outlined" color="inherit">
+              Registrarse
+            </Button>
+          </Link>
         </Box>
         <Box mx={1}>
-          <Button variant="outlined" p={5} color="inherit">
-            Ingresar
-          </Button>
+          <Link color="inherit" noWrap href="/login">
+            <Button variant="outlined" color="inherit">
+              Ingresar
+            </Button>
+          </Link>
         </Box>
       </Toolbar>
       <Toolbar
@@ -59,7 +64,7 @@ export default function Header(props) {
         className={classes.toolbarSecondary}
       >
         {sections.map(section => (
-          <Link
+          <LinkM
             color="inherit"
             noWrap
             key={section.title}
@@ -68,7 +73,7 @@ export default function Header(props) {
             className={classes.toolbarLink}
           >
             {section.title}
-          </Link>
+          </LinkM>
         ))}
       </Toolbar>
     </React.Fragment>
