@@ -36,7 +36,7 @@ export default function Header(props) {
           component="h2"
           variant="h5"
           color="inherit"
-          align="start"
+          align="left"
           noWrap
           className={classes.toolbarTitle}
         >
