@@ -15,14 +15,18 @@ import {
   put,
   del,
   requestBody,
+  getJsonSchemaRef,
+  HttpErrors,
 } from '@loopback/rest';
 import {validate} from 'isemail';
 import {Users} from '../models';
-import {UsersRepository} from '../repositories';
+import {UsersRepository, Credential} from '../repositories';
 import {validateCredentials} from '../services/validator';
 import * as _ from 'lodash';
 import {inject} from '@loopback/core';
 import {BcryptHasher} from '../services/hash.password.bcrypt';
+import {type} from 'os';
+import {AuthServices} from '../services/auth.service';
 
 export class UsersController {
   constructor(
@@ -30,13 +34,14 @@ export class UsersController {
     public usersRepository: UsersRepository,
     @inject('service.hasher')
     public hasher: BcryptHasher,
+    @inject('service.auth')
+    public authServices: AuthServices,
   ) {}
-
   @post('/users/signup', {
     responses: {
       '200': {
         description: 'Users model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Users)}},
+        content: {'application/json': {schema: getJsonSchemaRef(Users)}},
       },
     },
   })
@@ -52,9 +57,54 @@ export class UsersController {
     })
     users: Omit<Users, '_id'>,
   ): Promise<Users> {
+    let user = await this.usersRepository.findOne({
+      where: {email: users.email},
+    });
+    if (user) {
+      throw new HttpErrors[409]('Ya existe una cuenta con ese correo');
+    }
     validateCredentials(_.pick(users, ['email', 'password']));
     users.password = await this.hasher.hashPassword(users.password);
     return this.usersRepository.create(users);
+  }
+
+  @post('/users/login', {
+    responses: {
+      '200': {
+        description: 'Login for users',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                token: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  async login(@requestBody() credential: Credential): Promise<object> {
+    let user = await this.authServices.verifyCredentials(credential);
+    if (user) {
+      let tk = await this.authServices.GenerateToken(user);
+      console.log(tk);
+      return {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          birthdate: user.birthdate,
+          gender: user.gender,
+        },
+        token: tk.token,
+      };
+    } else {
+      throw new HttpErrors[401]('Usuario o contraseña invalida.');
+    }
   }
 
   @get('/users/count', {

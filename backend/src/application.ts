@@ -10,6 +10,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
 import {BcryptHasher} from './services/hash.password.bcrypt';
+import {AuthServices} from './services/auth.service';
 
 export {ApplicationConfig};
 
@@ -45,6 +46,7 @@ export class BackendApplication extends BootMixin(
   }
   setupBindings(): void {
     this.bind('service.hasher').toClass(BcryptHasher);
+    this.bind('service.auth').toClass(AuthServices);
     this.bind('rounds').to(10);
   }
 }
