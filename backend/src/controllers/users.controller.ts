@@ -16,16 +16,23 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
+import {validate} from 'isemail';
 import {Users} from '../models';
 import {UsersRepository} from '../repositories';
+import {validateCredentials} from '../services/validator';
+import * as _ from 'lodash';
+import {inject} from '@loopback/core';
+import {BcryptHasher} from '../services/hash.password.bcrypt';
 
 export class UsersController {
   constructor(
     @repository(UsersRepository)
     public usersRepository: UsersRepository,
+    @inject('service.hasher')
+    public hasher: BcryptHasher,
   ) {}
 
-  @post('/users', {
+  @post('/users/signup', {
     responses: {
       '200': {
         description: 'Users model instance',
@@ -45,6 +52,8 @@ export class UsersController {
     })
     users: Omit<Users, '_id'>,
   ): Promise<Users> {
+    validateCredentials(_.pick(users, ['email', 'password']));
+    users.password = await this.hasher.hashPassword(users.password);
     return this.usersRepository.create(users);
   }
 
@@ -76,7 +85,7 @@ export class UsersController {
     },
   })
   async find(@param.filter(Users) filter?: Filter<Users>): Promise<Users[]> {
-    return this.usersRepository.find(filter);
+    return this.usersRepository.find({include: ['blogs']});
   }
 
   @patch('/users', {
