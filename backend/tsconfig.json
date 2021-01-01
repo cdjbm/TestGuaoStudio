@@ -5,5 +5,16 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "remoting": {
+    "cors": true,
+    "handleErrors": false
+  },
+  "cors": {
+    "params": {
+      "origin": true,
+      "credentials": true,
+      "maxAge": 86400
+    }
+  }
 }

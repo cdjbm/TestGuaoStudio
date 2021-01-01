@@ -9,6 +9,8 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import { userService } from '../services/user.service';
+import { useRouter } from 'next/router';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -46,13 +48,52 @@ const useStyles = makeStyles(theme => ({
 
 export default function SignInSide() {
   const classes = useStyles();
+  let state = {
+    username: '',
+    password: '',
+    submitted: false,
+    error: '',
+  };
+
   const [user, setUser] = useState({});
-  const http = 'localhost:3001';
-  useEffect(() => {
-    fetch('localhost:3001/users')
-      .then(response => response.json())
-      .then(json => console.log(json));
-  }, []);
+  const http = 'http://localhost:3001';
+  // useEffect(() => {
+  //   fetch(http + '/users')
+  //     .then(response => response.json())
+  //     .then(({ data, length }) => {
+  //       console.log(data);
+  //       setUser(data);
+  //     });
+  // }, []);
+  // let login = event => {
+  //   console.log('Hola');
+  // };
+  const router = useRouter();
+  function handleChange(e) {
+    const { name, value } = e.target;
+    if (name === 'email') {
+      state.email = e.target.value;
+    } else {
+      state.password = e.target.value;
+    }
+  }
+  function handleSubmit(e) {
+    e.preventDefault();
+    const { email, password, returnUrl } = state;
+
+    // stop here if form is invalid
+    if (!(email && password)) {
+      return;
+    }
+    userService.login(email, password).then(
+      user => {
+        router.push('/');
+        console.log('entro ' + user);
+      },
+      error => console.log(error)
+    );
+  }
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -71,7 +112,7 @@ export default function SignInSide() {
           <Typography component="h1" variant="h5">
             Ingresar
           </Typography>
-          <form className={classes.form} noValidate>
+          <form className={classes.form} noValidate onSubmit={handleSubmit}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -79,6 +120,7 @@ export default function SignInSide() {
               fullWidth
               id="email"
               label="Correo electronico"
+              onChange={handleChange}
               name="email"
               autoComplete="email"
               autoFocus
@@ -90,6 +132,7 @@ export default function SignInSide() {
               fullWidth
               name="password"
               label="Contraseña"
+              onChange={handleChange}
               type="password"
               id="password"
               autoComplete="current-password"
